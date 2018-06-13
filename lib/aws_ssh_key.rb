@@ -1,4 +1,7 @@
-require "aws_ssh_key/version"
+require 'fileutils'
+require 'aws_ssh_key/version'
+require 'aws_ssh_key/key_maker'
+require 'aws_ssh_key/secure_parameter'
 
 module AwsSshKey
 
@@ -28,21 +31,21 @@ module AwsSshKey
     end
 
     def get_remote_public_key
-      SecureParameter.get_parameter(@secure_parameter_ssh_key_public, @aws_region)
+      AwsSshKey::SecureParameter.get_parameter(@secure_parameter_ssh_key_public, @aws_region)
     end
 
     def generate_key
-      KeyMaker.make_key(@key_name)
+      AwsSshKey::KeyMaker.make_key(@key_name)
     end
 
     def put_remote_key_pair(key_pair)
-      SecureParameter.put_parameter(@secure_parameter_ssh_key_public, key_pair[:public], @aws_region)
-      SecureParameter.put_parameter(@secure_parameter_ssh_key_private, key_pair[:private], @aws_region)
+      AwsSshKey::SecureParameter.put_parameter(@secure_parameter_ssh_key_public, key_pair[:public], @aws_region)
+      AwsSshKey::SecureParameter.put_parameter(@secure_parameter_ssh_key_private, key_pair[:private], @aws_region)
       key_pair[:public]
     end
 
     def write(folder)
-      mkpath folder
+      FileUtils.mkpath folder
       File.open("#{folder}/#{@key_name}.pub", 'w') {|f| f.write(@public_key) }
     end
 
