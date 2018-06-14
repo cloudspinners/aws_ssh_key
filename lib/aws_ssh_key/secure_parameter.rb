@@ -29,7 +29,7 @@ module AwsSshKey
       parameters.size > 0
     end
 
-    def self.put_parameter(name, value, region)
+    def self.put_parameter(name, value, region, tags)
       ssm = Aws::SSM::Client.new(region: region)
       ssm.put_parameter({
         name: name,
@@ -37,7 +37,20 @@ module AwsSshKey
         type: "SecureString",
         overwrite: true
       })
+
+      unless tags.empty?
+        tag_list = tags.map { |key, value|
+          { key: key, value: value }
+        }
+
+        resp = ssm.add_tags_to_resource({
+          resource_type: 'Parameter',
+          resource_id: name,
+          tags: tag_list
+        })
+      end
     end
+
   end
 
 end

@@ -7,10 +7,11 @@ module AwsSshKey
 
   class Key
 
-    def initialize(key_path, key_name, aws_region)
+    def initialize(key_path:, key_name:, aws_region:, tags: {})
       @key_path = key_path
       @key_name = key_name
       @aws_region = aws_region
+      @tags = tags
 
       @secure_parameter_ssh_key_public = "#{key_path}/ssh_key/#{key_name}/public"
       @secure_parameter_ssh_key_private = "#{key_path}/ssh_key/#{key_name}/private"
@@ -39,8 +40,8 @@ module AwsSshKey
     end
 
     def put_remote_key_pair(key_pair)
-      AwsSshKey::SecureParameter.put_parameter(@secure_parameter_ssh_key_public, key_pair[:public], @aws_region)
-      AwsSshKey::SecureParameter.put_parameter(@secure_parameter_ssh_key_private, key_pair[:private], @aws_region)
+      AwsSshKey::SecureParameter.put_parameter(@secure_parameter_ssh_key_public, key_pair[:public], @aws_region, @tags)
+      AwsSshKey::SecureParameter.put_parameter(@secure_parameter_ssh_key_private, key_pair[:private], @aws_region, @tags)
       key_pair[:public]
     end
 
