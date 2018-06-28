@@ -7,7 +7,7 @@ module AwsSshKey
 
   class Key
 
-    def initialize(key_path:, key_name:, aws_region:, tags: {})
+    def initialize(key_path:, key_name:, aws_region:, role: nil, tags: {})
       @key_path = key_path
       @key_name = key_name
       @aws_region = aws_region
@@ -17,6 +17,7 @@ module AwsSshKey
       @secure_parameter_ssh_key_private = "#{key_path}/ssh_key/#{key_name}/private"
 
       @public_key = nil
+      @role_to_assume = role
     end
 
     def load
@@ -32,7 +33,7 @@ module AwsSshKey
     end
 
     def get_remote_public_key
-      AwsSshKey::SecureParameter.get_parameter(@secure_parameter_ssh_key_public, @aws_region)
+      AwsSshKey::SecureParameter.get_parameter(@secure_parameter_ssh_key_public, @aws_region, @role_to_assume)
     end
 
     def generate_key
@@ -40,8 +41,8 @@ module AwsSshKey
     end
 
     def put_remote_key_pair(key_pair)
-      AwsSshKey::SecureParameter.put_parameter(@secure_parameter_ssh_key_public, key_pair[:public], @aws_region, @tags)
-      AwsSshKey::SecureParameter.put_parameter(@secure_parameter_ssh_key_private, key_pair[:private], @aws_region, @tags)
+      AwsSshKey::SecureParameter.put_parameter(@secure_parameter_ssh_key_public, key_pair[:public], @aws_region, @role_to_assume, @tags)
+      AwsSshKey::SecureParameter.put_parameter(@secure_parameter_ssh_key_private, key_pair[:private], @aws_region, @role_to_assume, @tags)
       key_pair[:public]
     end
 
